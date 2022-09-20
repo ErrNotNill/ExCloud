@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/templates/css/register.css">
+    <script src="register.js" defer></script>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div class="form">
+    <div class="title">Welcome</div>
+    <div class="subtitle">Let's enter your account!</div>
+
+    <div class="input-container ic1">
+        <input id="login" class="input" type="text" placeholder=" " />
+        <div class="cut"></div>
+        <label for="firstname" class="placeholder">Name</label>
+    </div>
+    <div class="input-container ic2">
+        <input id="password" class="input" type="text" placeholder=" " />
+        <div class="cut"></div>
+        <label for="lastname" class="placeholder">Password</label>
+    </div>
+
+    <button id="login_button" class="submit_in">Login</button>
+    <h3 id="ask-time" class="ask_time"></h3>
+    <div class="subtitle_footer">Don't have account?</div>
+
+    <button type="text" class="submit_up" id="register_button">Register</button>
+    {{if .Success}}
+
+{{ .StorageAccess}}
+
+</div>
+
+</body>
+{{end}}
+</html>

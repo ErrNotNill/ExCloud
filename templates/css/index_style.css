@@ -1,0 +1,23 @@
+header{
+    margin-top: 200px;
+}
+.filter{
+    margin: 0;
+    padding: 0;
+}
+.filter ul,
+.filter ol{
+    list-style: none;
+}
+.filter > ul {
+    display: flex;
+    justify-content: center;
+}
+.filter > ul li a {
+    display: block;
+    background: #ececed;
+    padding: 15px 30px 15px 40px;
+font-size: 14px;
+    text-decoration: none;
+    text-transform: uppercase;
+}

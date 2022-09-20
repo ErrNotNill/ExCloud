@@ -1,0 +1,22 @@
+{{define "base"}}
+        <html lang='en'>
+        <head><title>Main</title>
+                <meta charset='utf-8'>
+                <!-- Ссылка на CSS стили и иконку сайта -->
+                <link rel='stylesheet' href='/templates/css/register.css'>
+                <!-- Подключаем новый шрифт для сайта от Google Fonts -->
+                <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700'>
+        </head>
+        <body>
+        <header>
+                <h1><a href='/'>Хранилище Заметок</a></h1>
+        </header>
+        <nav>
+                <a href='/'>Домашняя страница</a>
+        </nav>
+        <main>
+{{template "home" .}}
+        </main>
+        </body>
+        </html>
+{{end}}

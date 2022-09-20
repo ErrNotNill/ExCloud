@@ -1,0 +1,28 @@
+basePath: /
+host: localhost:8000
+info:
+  contact: {}
+  description: Application API
+  title: App API
+  version: "1.0"
+paths:
+  /api/register:
+    post:
+      consumes:
+      - application/json
+      description: do ping
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+      tags:
+      - example
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
