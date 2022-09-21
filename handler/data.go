@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"ExCloud/repository/postgres"
 	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -57,9 +56,9 @@ func Serv(c *gin.Context) {
 // @Produce json
 // @Success 200 {"response":{"login":"string"}} string "token"
 // @Router /api/register [post]
-func Register(c *gin.Context) {
+func (h *Handler) Register(c *gin.Context) {
 	c.Writer.Header().Set("Content-Type", "application/json")
-	repo := postgres.Repository{}
+
 	login := c.PostForm("login")
 	password := c.PostForm("password")
 
@@ -67,11 +66,12 @@ func Register(c *gin.Context) {
 		c.Writer.WriteHeader(http.StatusBadRequest)
 	} else {
 		if CheckLoginCase(login) == true && CheckPasswordCase(password) == true {
-			if repo.LoginExists(login) == true {
+
+			if h.repo.LoginExists(login) == true {
 				c.Writer.WriteHeader(http.StatusBadRequest)
 				c.Writer.Write([]byte("This user already exists"))
 			} else {
-				_, err := repo.CreateUser(login, password)
+				_, err := h.repo.CreateUser(login, password)
 				if err != nil {
 					c.Writer.WriteHeader(http.StatusBadRequest)
 					c.Writer.Write([]byte("This user already exists"))
@@ -91,16 +91,15 @@ func Register(c *gin.Context) {
 	}
 }
 
-func AuthenticateHandler(c *gin.Context) {
+func (h *Handler) AuthenticateHandler(c *gin.Context) {
 	if c.Request.Method != "POST" {
 		c.Writer.WriteHeader(http.StatusBadRequest)
 	} else {
-		repo := postgres.Repository{}
 
 		login := c.PostForm("login")
 		password := c.PostForm("password")
 
-		if repo.UserExists(login, password) == true {
+		if h.repo.UserExists(login, password) == true {
 			c.Writer.Write([]byte("Welcome"))
 			token, err := GenerateToken(password, time.Second*2)
 			if err != nil {
@@ -122,7 +121,7 @@ func AuthenticateHandler(c *gin.Context) {
 	}
 }
 
-func postFile(filename string, targetUrl string) error {
+func (h *Handler) PostFile(filename string, targetUrl string) error {
 	bodyBuf := &bytes.Buffer{}
 	bodyWriter := multipart.NewWriter(bodyBuf)
 
@@ -164,7 +163,7 @@ func postFile(filename string, targetUrl string) error {
 	return nil
 }
 
-func UploadNewDocument(c *gin.Context) {
+func (h *Handler) UploadNewDocument(c *gin.Context) {
 	c.Writer.Header().Set("Content-Type", "multipart/form-data")
 	if c.Request.Method != "POST" {
 		fmt.Fprintf(c.Writer, "Error is %v", http.StatusMethodNotAllowed)
@@ -206,7 +205,7 @@ func UploadNewDocument(c *gin.Context) {
 	}
 }
 
-func GetDocuments(c *gin.Context) {
+func (h *Handler) GetDocuments(c *gin.Context) {
 	if c.Request.Method != http.MethodGet {
 		c.Writer.WriteHeader(http.StatusMethodNotAllowed)
 	} else {
@@ -214,7 +213,7 @@ func GetDocuments(c *gin.Context) {
 	}
 }
 
-func GetDocumentById(c *gin.Context) {
+func (h *Handler) GetDocumentById(c *gin.Context) {
 	/*id, err := strconv.Atoi(r.URL.Query().Get("<id>"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
@@ -222,10 +221,10 @@ func GetDocumentById(c *gin.Context) {
 	}
 	fmt.Fprintf(w, "Отображение ID %d...", id)*/
 }
-func DeleteDocumentById(c *gin.Context) {
+func (h *Handler) DeleteDocumentById(c *gin.Context) {
 
 }
-func EndSession(c *gin.Context) {
+func (h *Handler) EndSession(c *gin.Context) {
 	c.Request.URL.Query().Get("id")
 }
 

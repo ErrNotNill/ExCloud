@@ -31,26 +31,26 @@ func NewHandler(repo *postgres.Repository, cache *cache.Cache) *Handler {
 }
 
 func InitRoutes() *gin.Engine {
-
+	handler := new(Handler)
 	router := gin.Default()
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := router.Group("/api")
 	{
-		api.POST("/register", Register)
+		api.POST("/register", handler.Register)
 		//api.GET("/api/register", GetData)
-		api.POST("/auth", AuthenticateHandler)
+		api.POST("/auth", handler.AuthenticateHandler)
 
-		api.POST("/docs", UploadNewDocument)
-		api.GET("/docs", GetDocuments)
-		api.HEAD("/docs", GetDocuments)
+		api.POST("/docs", handler.UploadNewDocument)
+		api.GET("/docs", handler.GetDocuments)
+		api.HEAD("/docs", handler.GetDocuments)
 
-		api.GET("/docs/<id>", GetDocumentById)
-		api.HEAD("/docs/<id>", GetDocumentById)
-		api.DELETE("/docs/<id>", DeleteDocumentById)
+		api.GET("/docs/<id>", handler.GetDocumentById)
+		api.HEAD("/docs/<id>", handler.GetDocumentById)
+		api.DELETE("/docs/<id>", handler.DeleteDocumentById)
 
-		api.GET("/auth/<token>", EndSession)
+		api.GET("/auth/<token>", handler.EndSession)
 	}
 
 	return router
