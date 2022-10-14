@@ -1,13 +1,10 @@
 package handler
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
-	"io/ioutil"
 	"log"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"time"
@@ -100,12 +97,13 @@ func (h *Handler) AuthenticateHandler(c *gin.Context) {
 		password := c.PostForm("password")
 
 		if h.repo.UserExists(login, password) == true {
-			c.Writer.Write([]byte("Welcome"))
-			token, err := GenerateToken(password, time.Second*2)
+
+			token, err := GenerateToken(password, time.Minute*2)
 			if err != nil {
 				log.Fatalln("token generate err data/126")
 				return
 			}
+
 			c.JSON(http.StatusOK, map[string]string{
 				"token": token,
 			})
@@ -121,7 +119,7 @@ func (h *Handler) AuthenticateHandler(c *gin.Context) {
 	}
 }
 
-func (h *Handler) PostFile(filename string, targetUrl string) error {
+/*func (h *Handler) PostFile(filename string, targetUrl string) error {
 	bodyBuf := &bytes.Buffer{}
 	bodyWriter := multipart.NewWriter(bodyBuf)
 
@@ -161,9 +159,10 @@ func (h *Handler) PostFile(filename string, targetUrl string) error {
 	fmt.Println(resp.Status)
 	fmt.Println(string(resp_body))
 	return nil
-}
+}*/
 
 func (h *Handler) UploadNewDocument(c *gin.Context) {
+	
 	c.Writer.Header().Set("Content-Type", "multipart/form-data")
 	if c.Request.Method != "POST" {
 		fmt.Fprintf(c.Writer, "Error is %v", http.StatusMethodNotAllowed)

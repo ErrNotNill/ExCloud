@@ -10,7 +10,9 @@ func TestCheckLoginCase(t *testing.T) {
 	v := CheckLoginCase(login)
 	if !v {
 		fmt.Println(len(login))
-		t.Error("Incorrect login")
+		t.Fatal("Incorrect login")
+	} else {
+		t.Fatal()
 	}
 }
 func TestCheckPasswordCase(t *testing.T) {
