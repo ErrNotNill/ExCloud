@@ -1,13 +1,14 @@
 package handler
 
 import (
+	"ExCloud/models"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 const AdminToken = "test"
@@ -18,13 +19,9 @@ func Serv(c *gin.Context) {
 	http.FileServer(http.Dir("./templates/css/"))
 }
 
-/*func GetData(c *gin.Context) {
-	c.Sta
-	return func(w http.ResponseWriter, r *http.Request) {
-
-	}
-
-	http.FileServer(http.Dir("/templates/css/"))
+/*func GetDataWIthTemplates(c *gin.Context) {
+//todo file server handler
+http.FileServer(http.Dir("/templates/css/"))
 	pages := []string{
 		"./templates/html/register/home.page.tmpl",
 		"./templates/html/register/base.layout.tmpl",
@@ -36,22 +33,22 @@ func Serv(c *gin.Context) {
 	if err != nil {
 		log.Println(err.Error())
 	}
-
 }*/
 
+// ####### SWAGGER ##########
 // @Summary Register
 // @tags sign-up
-// @Description login
+// @Description register
 // @Id login
 // @Accept json
 // @Produce json
 
-// @Schemes
+// Register @Schemes //edited
 // @Description user registration
 // @Tags Register
 // @Accept json
 // @Produce json
-// @Success 200 {"response":{"login":"string"}} string "token"
+// @Success 200 {"response":{"login":"string","password":"string"}} string "token"
 // @Router /api/register [post]
 func (h *Handler) Register(c *gin.Context) {
 	c.Writer.Header().Set("Content-Type", "application/json")
@@ -62,18 +59,21 @@ func (h *Handler) Register(c *gin.Context) {
 	if c.Request.Method != http.MethodPost {
 		c.Writer.WriteHeader(http.StatusBadRequest)
 	} else {
-		if CheckLoginCase(login) == true && CheckPasswordCase(password) == true {
 
+		if CheckLoginCase(login) && CheckPasswordCase(password) == true {
+			fmt.Println("ok")
 			if h.repo.LoginExists(login) == true {
+				fmt.Println("login exist")
 				c.Writer.WriteHeader(http.StatusBadRequest)
 				c.Writer.Write([]byte("This user already exists"))
 			} else {
 				_, err := h.repo.CreateUser(login, password)
+
 				if err != nil {
 					c.Writer.WriteHeader(http.StatusBadRequest)
 					c.Writer.Write([]byte("This user already exists"))
 				} else {
-					c.JSON(http.StatusOK, map[string]interface{}{
+					c.JSON(http.StatusOK, map[string]string{
 						"login": login,
 					})
 					c.Writer.WriteHeader(http.StatusOK)
@@ -88,6 +88,20 @@ func (h *Handler) Register(c *gin.Context) {
 	}
 }
 
+// @Summary AuthenticateHandler
+// @tags sign-in
+// @Description login
+// @Id login
+// @Accept json
+// @Produce json
+
+// AuthenticateHandler @Schemes //edited
+// @Description user authenticate
+// @Tags AuthenticateHandler
+// @Accept json
+// @Produce json
+// @Success 200 {"request":{"login":string,"password":string} "response":{"token":string}
+// @Router /api/auth [post]
 func (h *Handler) AuthenticateHandler(c *gin.Context) {
 	if c.Request.Method != "POST" {
 		c.Writer.WriteHeader(http.StatusBadRequest)
@@ -95,10 +109,11 @@ func (h *Handler) AuthenticateHandler(c *gin.Context) {
 
 		login := c.PostForm("login")
 		password := c.PostForm("password")
-
+		//Middleware(c)
 		if h.repo.UserExists(login, password) == true {
+			token, err := h.repo.AuthenticateStorage(login, password)
 
-			token, err := GenerateToken(password, time.Minute*2)
+			//	userToken := models.User{Token: token}
 			if err != nil {
 				log.Fatalln("token generate err data/126")
 				return
@@ -108,6 +123,9 @@ func (h *Handler) AuthenticateHandler(c *gin.Context) {
 				"token": token,
 			})
 			fmt.Println(token)
+
+		} else {
+			c.JSON(http.StatusBadRequest, nil)
 		}
 		/*err = repo.AuthenticateStorage(login, password)
 		if err != nil {
@@ -119,7 +137,8 @@ func (h *Handler) AuthenticateHandler(c *gin.Context) {
 	}
 }
 
-/*func (h *Handler) PostFile(filename string, targetUrl string) error {
+//LoadFile todo repair FileLoader
+/*func (h *Handler) LoadFile(filename string, targetUrl string) error {
 	bodyBuf := &bytes.Buffer{}
 	bodyWriter := multipart.NewWriter(bodyBuf)
 
@@ -161,8 +180,9 @@ func (h *Handler) AuthenticateHandler(c *gin.Context) {
 	return nil
 }*/
 
+// UploadNewDocument todo fix this handler
 func (h *Handler) UploadNewDocument(c *gin.Context) {
-	
+
 	c.Writer.Header().Set("Content-Type", "multipart/form-data")
 	if c.Request.Method != "POST" {
 		fmt.Fprintf(c.Writer, "Error is %v", http.StatusMethodNotAllowed)
@@ -211,8 +231,36 @@ func (h *Handler) GetDocuments(c *gin.Context) {
 		c.Writer.Write([]byte("HI"))
 	}
 }
+func (h *Handler) GetAllUsers(c *gin.Context) {
+	//user := models.User{}
+
+	users, err := h.repo.GetAllUsers()
+	if err != nil {
+		fmt.Println("WTF?")
+	}
+	msg, err := json.Marshal(users)
+	var data []models.User
+	err = json.Unmarshal(msg, &data)
+	/*var orders = make([]string, 0)
+	ja, _ := json.Marshal(users)
+	json.Unmarshal(ja, &user)
+	ordersFromHabr := string(ja)
+	orders = append(orders, ordersFromHabr)
+	fmt.Println(orders)*/
+	//userY := &models.User{Login: users.Login, Password: users.Password}
+	//users := models.User{}
+	if c.Request.Method != http.MethodGet {
+		c.Writer.WriteHeader(http.StatusMethodNotAllowed)
+	} else {
+
+		//ja, _ := json.MarshalIndent(users, "", "")
+		c.Writer.Write(msg)
+
+	}
+}
 
 func (h *Handler) GetDocumentById(c *gin.Context) {
+	c.Param("<id>")
 	/*id, err := strconv.Atoi(r.URL.Query().Get("<id>"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
@@ -220,14 +268,11 @@ func (h *Handler) GetDocumentById(c *gin.Context) {
 	}
 	fmt.Fprintf(w, "Отображение ID %d...", id)*/
 }
-func (h *Handler) DeleteDocumentById(c *gin.Context) {
 
+func (h *Handler) DeleteDocumentById(c *gin.Context) {
+	//FileServer
 }
+
 func (h *Handler) EndSession(c *gin.Context) {
 	c.Request.URL.Query().Get("id")
-}
-
-func DataResponse(w http.ResponseWriter, r *http.Request) {
-}
-func SendData(w http.ResponseWriter, r *http.Request) {
 }

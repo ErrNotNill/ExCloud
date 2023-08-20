@@ -3,14 +3,9 @@ package main
 import (
 	//	_ "ExCloud/app/docs"
 	"ExCloud/handler"
-	"ExCloud/models"
-	"ExCloud/models/user/register"
-	"encoding/json"
-	"fmt"
 	_ "github.com/swaggo/files"
 	_ "github.com/swaggo/gin-swagger"
 	_ "github.com/swaggo/http-swagger"
-	"html/template"
 	"log"
 	"net/http"
 )
@@ -27,25 +22,15 @@ import (
 // @name Authorization
 
 func main() {
-	/*r := chi.NewRouter()
-
-	r.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:1323/swagger/doc.json"), //The url pointing to API definition
-	))
-
-	http.ListenAndServe(":1323", r)*/
 
 	err := http.ListenAndServe(":8000", handler.InitRoutes())
 	if err != nil {
 		log.Fatalln("srv not started")
 	}
+
 }
 
-/*mux := http.NewServeMux()
-mux.HandleFunc("/reg", regHandler)
-mux.HandleFunc("/auth", authHandler)*/
-
-func regHandler(w http.ResponseWriter, r *http.Request) {
+/*func regHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != "POST" {
 		w.WriteHeader(405)
@@ -83,4 +68,4 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte("World"))
-}
+}*/

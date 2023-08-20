@@ -8,6 +8,34 @@ import (
 	"time"
 )
 
+/*type Token struct {
+	token string
+	expiresAt time.Time
+	issuedAt time.Time
+	exist bool
+}*/
+
+type Claims struct {
+	jwt.RegisteredClaims
+	Login string `json:"login"`
+}
+
+func ParseToken(accessToken string, signingKey []byte) (string, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected auth method: %v", token.Header["alg"])
+		}
+		return signingKey, nil
+	})
+	if err != nil {
+		return "", err
+	}
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims.Login, nil
+	}
+	return "", Claims{}.Valid()
+}
+
 func GenerateToken(password string, expireDuration time.Duration) (string, error) {
 	pwd := sha1.New()
 	pwd.Write([]byte(password))

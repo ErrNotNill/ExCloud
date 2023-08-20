@@ -26,6 +26,35 @@ type Handler struct {
 	fileServer *FileSrv
 }
 
+/*var SIGNING_KEY []byte
+
+func Middleware(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+	headerParts := strings.Split(authHeader, " ")
+	if len(headerParts) != 2 {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+	if headerParts[0] != "Bearer" {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	_, err := ParseToken(headerParts[1], SIGNING_KEY)
+	if err != nil {
+		status := http.StatusBadRequest
+		if err == jwt.ErrInvalidKey {
+			status = http.StatusUnauthorized
+		}
+		c.AbortWithStatus(status)
+		return
+	}
+}*/
+
 func NewHandler(repo *postgres.Repository, cache *cache.Cache) *Handler {
 	return &Handler{repo: repo, cache: cache}
 }
@@ -38,6 +67,7 @@ func InitRoutes() *gin.Engine {
 
 	api := router.Group("/api")
 	{
+		api.GET("/users", handler.GetAllUsers)
 		api.POST("/register", handler.Register)
 		//api.GET("/api/register", GetData)
 		api.POST("/auth", handler.AuthenticateHandler)
@@ -55,5 +85,4 @@ func InitRoutes() *gin.Engine {
 
 	return router
 
-	//fileserver := router.Group("file")
 }
